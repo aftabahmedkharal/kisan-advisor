@@ -1,0 +1,1852 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kisan Advisor - Crop Disease Diagnosis</title>
+    <meta name="theme-color" content="#2f6b45" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f3f6f1;
+        --ink: #14201a;
+        --muted: #5d7063;
+        --card: #fff;
+        --line: #dde7d9;
+        --leaf: #2f6b45;
+        --leaf-d: #214d32;
+        --leaf-l: #e6f0e3;
+        --accent: #8fb98f;
+        --dark: #17201b;
+        --none: #2f6b45;
+        --low: #4a7c3a;
+        --medium: #d97706;
+        --high: #dc2626;
+        --shadow: 0 6px 28px rgba(33, 77, 50, 0.08);
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          16px/1.6 "Plus Jakarta Sans",
+          system-ui,
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      body[dir="rtl"] {
+        font-family: "Noto Nastaliq Urdu", serif;
+        line-height: 2.1;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border: 0;
+        color: inherit;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .vh {
+        position: fixed;
+        left: -9999px;
+        top: 0;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+      }
+      .wrap {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* navbar */
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-in {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        height: 72px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+      }
+      .logo {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--leaf), var(--accent));
+        display: grid;
+        place-items: center;
+        font-size: 24px;
+        box-shadow: 0 6px 16px rgba(47, 107, 69, 0.3);
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: 1.55rem;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--leaf);
+      }
+      .brand h1 span {
+        color: var(--ink);
+      }
+      .brand small {
+        display: block;
+        font-size: 0.68rem;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      body[dir="rtl"] .brand h1 {
+        letter-spacing: 0;
+        line-height: 1.7;
+      }
+      .links {
+        display: flex;
+        gap: 6px;
+        margin-inline-start: auto;
+      }
+      .links a {
+        padding: 8px 16px;
+        border-radius: 99px;
+        text-decoration: none;
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 0.92rem;
+      }
+      .links a:hover {
+        background: var(--leaf-l);
+        color: var(--leaf);
+      }
+      .lang {
+        padding: 8px 18px;
+        border-radius: 99px;
+        background: var(--leaf);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .lang:hover {
+        background: var(--leaf-d);
+      }
+
+      /* hero */
+      .hero {
+        display: grid;
+        grid-template-columns: 1.05fr 1fr;
+        gap: 48px;
+        align-items: center;
+        padding-top: 56px;
+        padding-bottom: 40px;
+      }
+      .pill-badge {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        background: var(--leaf-l);
+        color: var(--leaf);
+        padding: 6px 16px;
+        border-radius: 99px;
+        font-weight: 700;
+        font-size: 0.84rem;
+        border: 1px solid rgba(47, 107, 69, 0.2);
+      }
+      .hero h2 {
+        font-size: 3.1rem;
+        line-height: 1.1;
+        margin: 18px 0 14px;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+      }
+      body[dir="rtl"] .hero h2 {
+        letter-spacing: 0;
+        line-height: 1.5;
+      }
+      .hero h2 span {
+        color: var(--leaf);
+      }
+      .hero p.sub {
+        color: var(--muted);
+        font-size: 1.1rem;
+        max-width: 520px;
+        margin: 0 0 22px;
+      }
+      .ticks {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .ticks li {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .ticks i {
+        font-style: normal;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--leaf-l);
+        display: grid;
+        place-items: center;
+        font-size: 13px;
+      }
+
+      /* upload card */
+      .drop {
+        background: var(--card);
+        border: 2px dashed var(--accent);
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: var(--shadow);
+        min-height: 360px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: 0.2s;
+      }
+      .drop.idle {
+        cursor: pointer;
+      }
+      .drop.idle:hover,
+      .drop.over {
+        border-color: var(--leaf);
+        background: #f8fbf6;
+      }
+      .up-ico {
+        width: 72px;
+        height: 72px;
+        border-radius: 20px;
+        background: var(--leaf-l);
+        display: grid;
+        place-items: center;
+        font-size: 34px;
+        margin-bottom: 16px;
+      }
+      .drop h3 {
+        margin: 0 0 6px;
+        font-size: 1.3rem;
+      }
+      .drop p {
+        margin: 0 0 20px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        max-width: 340px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 26px;
+        border-radius: 12px;
+        background: var(--leaf);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.98rem;
+      }
+      .btn:hover {
+        background: var(--leaf-d);
+      }
+      .btn.out {
+        background: #fff;
+        color: var(--leaf);
+        border: 1.5px solid var(--leaf);
+      }
+      .btn.out:hover {
+        background: var(--leaf-l);
+      }
+      .drop small {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.76rem;
+      }
+      .pv {
+        position: relative;
+        width: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #dfe8da;
+      }
+      .pv img {
+        display: block;
+        width: 100%;
+        max-height: 340px;
+        object-fit: contain;
+        background: #dfe8da;
+      }
+      .corner {
+        position: absolute;
+        width: 34px;
+        height: 34px;
+        border: 3px solid #fff;
+        z-index: 2;
+      }
+      .tl {
+        top: 10px;
+        left: 10px;
+        border-right: 0;
+        border-bottom: 0;
+        border-top-left-radius: 14px;
+      }
+      .tr {
+        top: 10px;
+        right: 10px;
+        border-left: 0;
+        border-bottom: 0;
+        border-top-right-radius: 14px;
+      }
+      .bl {
+        bottom: 10px;
+        left: 10px;
+        border-right: 0;
+        border-top: 0;
+        border-bottom-left-radius: 14px;
+      }
+      .br {
+        bottom: 10px;
+        right: 10px;
+        border-left: 0;
+        border-bottom: 0;
+        border-top: 0;
+        border-right: 3px solid #fff;
+        border-bottom: 3px solid #fff;
+        border-bottom-right-radius: 14px;
+      }
+      .scanline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(
+          rgba(255, 255, 255, 0),
+          rgba(255, 255, 255, 0.6)
+        );
+        border-bottom: 2px solid #fff;
+        animation: scan 2s ease-in-out infinite alternate;
+        z-index: 1;
+      }
+      @keyframes scan {
+        from {
+          top: -60px;
+        }
+        to {
+          top: calc(100% - 60px);
+        }
+      }
+      .status {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.92rem;
+        flex-wrap: wrap;
+      }
+      .spin {
+        width: 18px;
+        height: 18px;
+        border: 3px solid var(--leaf);
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: sp 0.8s linear infinite;
+      }
+      @keyframes sp {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .errbox {
+        color: var(--high);
+        font-size: 0.86rem;
+        font-weight: 600;
+        text-align: center;
+      }
+      .errbox small {
+        display: block;
+        color: var(--muted);
+        font-weight: 400;
+      }
+
+      /* section titles */
+      .sec-h {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        margin: 0 0 20px;
+      }
+      .sec-h h2 {
+        margin: 0;
+        font-size: 1.7rem;
+        letter-spacing: -0.02em;
+      }
+      section.blk-sec {
+        padding-top: 28px;
+        padding-bottom: 28px;
+      }
+
+      /* result */
+      .result-grid {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 24px;
+        align-items: start;
+      }
+      .sum {
+        background: var(--dark);
+        color: #fff;
+        border-radius: 22px;
+        padding: 20px;
+        position: sticky;
+        top: 92px;
+      }
+      .sum img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 14px;
+        background: #2a352e;
+      }
+      .sum h3 {
+        margin: 16px 0 2px;
+        font-size: 1.5rem;
+        line-height: 1.25;
+      }
+      .sum .meta {
+        color: #a9b8ad;
+        font-size: 0.85rem;
+      }
+      .badge {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 4px 14px;
+        border-radius: 99px;
+        background: var(--c);
+        font-weight: 700;
+        font-size: 0.82rem;
+      }
+      .risk {
+        margin-top: 18px;
+      }
+      .risk b {
+        font-size: 0.88rem;
+      }
+      .bar {
+        height: 8px;
+        border-radius: 9px;
+        background: #2d3a31;
+        margin: 8px 0 4px;
+        overflow: hidden;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        background: var(--c);
+        border-radius: 9px;
+        transition: width 0.6s;
+      }
+      .risk .lh {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.72rem;
+        color: #a9b8ad;
+      }
+      .acts {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .acts button {
+        flex: 1;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .a-out {
+        background: transparent;
+        border: 1.5px solid var(--accent) !important;
+        color: var(--accent);
+      }
+      .a-out:hover {
+        background: rgba(143, 185, 143, 0.12);
+      }
+      .a-fill {
+        background: var(--accent);
+        color: #102015;
+      }
+      .details {
+        display: grid;
+        gap: 16px;
+      }
+      .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px 22px;
+        box-shadow: var(--shadow);
+      }
+      .card h4 {
+        margin: 0 0 10px;
+        font-size: 1.02rem;
+        color: var(--leaf);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .card p {
+        margin: 0;
+        font-size: 0.93rem;
+        color: #3a4b40;
+      }
+      .card ul {
+        margin: 0;
+        padding-inline-start: 20px;
+        display: grid;
+        gap: 6px;
+        font-size: 0.93rem;
+        color: #3a4b40;
+      }
+      .urgent {
+        background: #fff1f0;
+        border-color: #f5c2bd;
+      }
+      .urgent h4 {
+        color: var(--high);
+      }
+      .note {
+        background: var(--leaf-l);
+        border-color: transparent;
+        box-shadow: none;
+        display: flex;
+        gap: 12px;
+        font-size: 0.85rem;
+        color: #4a5d51;
+      }
+      .notplant {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 28px;
+        text-align: center;
+        color: var(--high);
+        font-weight: 600;
+      }
+
+      /* history */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 16px;
+      }
+      .hcard {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        overflow: hidden;
+        text-align: start;
+        box-shadow: var(--shadow);
+        transition: 0.2s;
+        padding: 0;
+      }
+      .hcard:hover {
+        transform: translateY(-3px);
+      }
+      .hcard img {
+        width: 100%;
+        height: 130px;
+        object-fit: cover;
+        display: block;
+        background: var(--leaf-l);
+      }
+      .hcard div {
+        padding: 12px 14px;
+      }
+      .hcard b {
+        display: block;
+        font-size: 0.95rem;
+        line-height: 1.35;
+      }
+      .hcard small {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      .sevdot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        margin-inline-end: 6px;
+        background: var(--c);
+      }
+      .empty {
+        grid-column: 1/-1;
+        text-align: center;
+        color: var(--muted);
+        padding: 34px;
+        background: #fff;
+        border: 1px dashed var(--line);
+        border-radius: 18px;
+      }
+
+      /* features */
+      .feats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      .feat {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+      }
+      .feat .fi {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: var(--leaf-l);
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        margin-bottom: 12px;
+      }
+      .feat h4 {
+        margin: 0 0 4px;
+        font-size: 1.05rem;
+      }
+      .feat p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      footer {
+        margin-top: 40px;
+        background: var(--dark);
+        color: #a9b8ad;
+        text-align: center;
+        padding: 28px 24px;
+        font-size: 0.88rem;
+      }
+      footer b {
+        color: #fff;
+      }
+
+      /* nav auth */
+      .nav-auth {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .nb {
+        padding: 8px 18px;
+        border-radius: 99px;
+        background: var(--leaf);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.88rem;
+        white-space: nowrap;
+      }
+      .nb:hover {
+        background: var(--leaf-d);
+      }
+      .nb.out {
+        background: #fff;
+        color: var(--leaf);
+        border: 1.5px solid var(--leaf);
+      }
+      .nb.out:hover {
+        background: var(--leaf-l);
+      }
+      .uname {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--leaf-d);
+        background: var(--leaf-l);
+        padding: 7px 14px;
+        border-radius: 99px;
+        white-space: nowrap;
+      }
+
+      /* auth pages */
+      .auth-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 1000px;
+        margin: 48px auto;
+        background: #fff;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--line);
+      }
+      .auth-side {
+        background: linear-gradient(
+          150deg,
+          var(--leaf-d),
+          var(--leaf) 60%,
+          #6fa77b
+        );
+        color: #fff;
+        padding: 48px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 18px;
+      }
+      .auth-side .big {
+        font-size: 56px;
+        line-height: 1;
+      }
+      .auth-side h2 {
+        margin: 0;
+        font-size: 2rem;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+      }
+      body[dir="rtl"] .auth-side h2 {
+        line-height: 1.6;
+        letter-spacing: 0;
+      }
+      .auth-side ul {
+        margin: 8px 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 12px;
+      }
+      .auth-side li {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-weight: 600;
+      }
+      .auth-side li i {
+        font-style: normal;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: grid;
+        place-items: center;
+        font-size: 13px;
+      }
+      .auth-card {
+        padding: 48px 40px;
+      }
+      .auth-card h2 {
+        margin: 0 0 4px;
+        font-size: 1.7rem;
+        letter-spacing: -0.02em;
+      }
+      .auth-card .asub {
+        margin: 0 0 22px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .a-notice {
+        background: #fff7e6;
+        border: 1px solid #f3d9a4;
+        color: #7a5b12;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 0.86rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
+      .fld {
+        margin-bottom: 16px;
+      }
+      .fld label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+      }
+      .fld input {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1.5px solid var(--line);
+        border-radius: 12px;
+        font: inherit;
+        font-size: 0.95rem;
+        background: #fbfdfb;
+        color: var(--ink);
+      }
+      .fld input {
+        position: relative;
+        z-index: 1;
+        -webkit-user-select: text;
+        user-select: text;
+        pointer-events: auto;
+      }
+      .fld input:focus {
+        outline: 0;
+        border-color: var(--leaf);
+        box-shadow: 0 0 0 3px rgba(47, 107, 69, 0.14);
+      }
+      .pw {
+        position: relative;
+      }
+      .pw input {
+        padding-inline-end: 46px;
+      }
+      .pw button {
+        position: absolute;
+        inset-inline-end: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        font-size: 1.1rem;
+        padding: 6px;
+      }
+      .a-err {
+        color: var(--high);
+        font-size: 0.86rem;
+        font-weight: 600;
+        min-height: 1.3em;
+        margin-bottom: 10px;
+      }
+      .btn.full {
+        width: 100%;
+        justify-content: center;
+      }
+      .switch {
+        text-align: center;
+        margin: 18px 0 0;
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+      .switch a {
+        color: var(--leaf);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      @media (max-width: 800px) {
+        .auth-wrap {
+          grid-template-columns: 1fr;
+          margin: 20px 16px;
+        }
+        .auth-side {
+          display: none;
+        }
+        .auth-card {
+          padding: 32px 22px;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 28px;
+          padding-top: 32px;
+        }
+        .hero h2 {
+          font-size: 2.3rem;
+        }
+        .result-grid {
+          grid-template-columns: 1fr;
+        }
+        .sum {
+          position: static;
+        }
+        .feats {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 640px) {
+        .wrap {
+          padding: 0 16px;
+        }
+        .nav-in {
+          gap: 10px;
+          height: 64px;
+        }
+        .links {
+          display: none;
+        }
+        .lang {
+          margin-inline-start: auto;
+          padding: 7px 12px;
+        }
+        .brand h1 {
+          font-size: 1.2rem;
+        }
+        .brand small,
+        .uname {
+          display: none;
+        }
+        .logo {
+          width: 40px;
+          height: 40px;
+          font-size: 20px;
+        }
+        .nb {
+          padding: 7px 12px;
+          font-size: 0.8rem;
+        }
+        .two {
+          grid-template-columns: 1fr;
+        }
+        .hero h2 {
+          font-size: 1.9rem;
+        }
+      }
+
+      /* chatbot */
+      .chat-fab {
+        position: fixed; inset-inline-end: 20px; bottom: 20px; z-index: 40;
+        width: 62px; height: 62px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--leaf), #4f9a66); color: #fff;
+        font-size: 28px; display: grid; place-items: center;
+        box-shadow: 0 10px 28px rgba(33, 77, 50, 0.38); transition: transform 0.15s;
+      }
+      .chat-fab:hover { transform: scale(1.07); }
+      .chat {
+        position: fixed; inset-inline-end: 20px; bottom: 96px; z-index: 41;
+        width: 390px; max-width: calc(100vw - 24px);
+        height: min(620px, calc(100vh - 120px)); height: min(620px, calc(100dvh - 120px));
+        background: #fff; border: 1px solid var(--line); border-radius: 22px;
+        box-shadow: 0 18px 60px rgba(20, 32, 26, 0.28);
+        display: flex; flex-direction: column; overflow: hidden;
+      }
+      .chat-h {
+        display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+        background: linear-gradient(135deg, var(--leaf-d), var(--leaf)); color: #fff;
+      }
+      .chat-av { width: 38px; height: 38px; border-radius: 12px; background: rgba(255,255,255,.2); display: grid; place-items: center; font-size: 20px; }
+      .chat-t { flex: 1; min-width: 0; line-height: 1.25; }
+      .chat-t b { display: block; font-size: 1rem; }
+      .chat-t small { font-size: 0.74rem; opacity: 0.85; }
+      .chat .ic { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.14); color: #fff; font-size: 15px; display: grid; place-items: center; }
+      .chat .ic:hover { background: rgba(255,255,255,.28); }
+      .chat .ic.on { background: rgba(255,255,255,.34); }
+      .chat-msgs { flex: 1; overflow-y: auto; padding: 14px; background: #f6f9f4; display: flex; flex-direction: column; gap: 10px; overscroll-behavior: contain; }
+      .m { display: flex; align-items: flex-end; gap: 6px; max-width: 100%; }
+      .m.user { justify-content: flex-end; }
+      .bub { max-width: 82%; padding: 10px 14px; border-radius: 16px; font-size: 0.93rem; line-height: 1.55; word-break: break-word; }
+      body[dir="rtl"] .bub { line-height: 2; }
+      .m.bot .bub { background: #fff; border: 1px solid var(--line); border-end-start-radius: 4px; }
+      .m.user .bub { background: var(--leaf); color: #fff; border-end-end-radius: 4px; }
+      .bub.cerr { background: #fff1f0; border-color: #f5c2bd; color: var(--high); }
+      .say { background: none; font-size: 15px; padding: 4px; opacity: 0.55; }
+      .say:hover { opacity: 1; }
+      .typing { display: flex; gap: 5px; padding: 14px 16px; }
+      .typing i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: bl 1s infinite ease-in-out; }
+      .typing i:nth-child(2) { animation-delay: 0.15s; } .typing i:nth-child(3) { animation-delay: 0.3s; }
+      @keyframes bl { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+      .chip { background: #fff; border: 1.5px solid var(--accent); color: var(--leaf-d); padding: 7px 13px; border-radius: 99px; font-size: 0.82rem; font-weight: 600; text-align: start; }
+      .chip:hover { background: var(--leaf-l); }
+      .chat-hint { min-height: 0; padding: 0 14px; font-size: 0.8rem; color: var(--medium); font-weight: 600; background: #f6f9f4; }
+      .chat-hint:not(:empty) { padding: 6px 14px; }
+      .chat-f { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); background: #fff; align-items: center; }
+      .chat-f input { flex: 1; min-width: 0; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 99px; font: inherit; font-size: 0.95rem; background: #fbfdfb; color: var(--ink); }
+      .chat-f input:focus { outline: 0; border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(47,107,69,.14); }
+      .mic, .send { width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 18px; }
+      .mic { background: var(--leaf-l); color: var(--leaf); }
+      .mic:hover { background: #d6e7d1; }
+      .mic.on { background: var(--high); color: #fff; animation: pulse 1.2s infinite; }
+      @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220,38,38,.5); } 100% { box-shadow: 0 0 0 14px rgba(220,38,38,0); } }
+      .send { background: var(--leaf); color: #fff; }
+      .send:hover { background: var(--leaf-d); }
+      body[dir="rtl"] .send { transform: scaleX(-1); }
+      @media (max-width: 640px) {
+        .chat { inset: 0; width: 100%; max-width: none; height: 100vh; height: 100dvh; border-radius: 0; border: 0; }
+        .chat-fab.open { display: none; }
+        .chat-fab { inset-inline-end: 16px; bottom: 16px; }
+      }
+    </style>
+  </head>
+  <body dir="ltr">
+    <header class="nav">
+      <div class="wrap nav-in">
+        <a class="brand" href="#top">
+          <div class="logo">🌾</div>
+          <div>
+            <h1 id="t-brand">Kisan <span>Advisor</span></h1>
+            <small id="t-tag">Smart Farming &amp; Crop Protection</small>
+          </div>
+        </a>
+        <nav class="links">
+          <a href="#diagnose" id="n-diag">Diagnose</a>
+          <a href="#history" id="n-hist">History</a>
+          <a href="#features" id="n-feat">Features</a>
+        </nav>
+        <button class="lang" id="lang-btn">اردو</button>
+        <div class="nav-auth" id="nav-auth"></div>
+      </div>
+    </header>
+
+    <!-- LOGIN / SIGNUP -->
+    <section id="auth-view" hidden>
+      <div class="auth-wrap">
+        <div class="auth-side">
+          <div class="big">🌾</div>
+          <h2 id="side-t">Protect your crop, grow your harvest</h2>
+          <ul>
+            <li><i>⚡</i><span id="sb1">Instant AI crop diagnosis</span></li>
+            <li>
+              <i>🕘</i><span id="sb2">Saved history for every photo</span>
+            </li>
+            <li>
+              <i>🌐</i><span id="sb3">Available in English and Urdu</span>
+            </li>
+          </ul>
+        </div>
+        <div class="auth-card">
+          <h2 id="a-title">Welcome back</h2>
+          <p class="asub" id="a-sub"></p>
+          <div class="a-notice" id="a-notice" hidden></div>
+          <form id="auth-form" novalidate>
+            <div class="fld" id="f-name">
+              <label for="in-name" id="l-name">Full name</label
+              ><input id="in-name" type="text" autocomplete="name" />
+            </div>
+            <div class="fld">
+              <label for="in-email" id="l-email">Email</label
+              ><input
+                id="in-email"
+                type="text"
+                inputmode="email"
+                dir="ltr"
+                autocomplete="email"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck="false"
+                placeholder="name@example.com"
+              />
+            </div>
+            <div class="fld">
+              <label for="in-pass" id="l-pass">Password</label>
+              <div class="pw">
+                <input
+                  id="in-pass"
+                  type="password"
+                  dir="ltr"
+                  autocomplete="current-password"
+                /><button
+                  type="button"
+                  id="pw-toggle"
+                  aria-label="Show password"
+                >
+                  👁
+                </button>
+              </div>
+            </div>
+            <div class="fld" id="f-pass2">
+              <label for="in-pass2" id="l-pass2">Confirm password</label
+              ><input
+                id="in-pass2"
+                type="password"
+                dir="ltr"
+                autocomplete="new-password"
+              />
+            </div>
+            <div class="a-err" id="a-err"></div>
+            <button type="submit" class="btn full" id="a-submit">Log in</button>
+          </form>
+          <p class="switch">
+            <span id="a-switch-t"></span> <a href="#signup" id="a-switch"></a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div id="app-view" hidden>
+      <main id="top">
+        <!-- HERO + UPLOAD -->
+        <section class="wrap hero" id="diagnose">
+          <div>
+            <span class="pill-badge"
+              >🌱
+              <span id="pill-text"
+                >Smart Farming &amp; Crop Protection</span
+              ></span
+            >
+            <h2 id="hero-title">What's wrong with your <span>crop</span>?</h2>
+            <p class="sub" id="hero-sub">
+              Upload a photo of your crop or leaf and our AI will diagnose
+              diseases, pests and nutrient deficiencies instantly.
+            </p>
+            <ul class="ticks">
+              <li><i>⚡</i><span id="tk1">Results in seconds</span></li>
+              <li>
+                <i>🛡️</i><span id="tk2">Organic and chemical remedies</span>
+              </li>
+              <li>
+                <i>🌾</i
+                ><span id="tk3">Made for South Asian crops and farms</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="drop idle" id="drop">
+            <div id="hint">
+              <div class="up-ico">🌿</div>
+              <h3 id="up-title">Upload a crop photo</h3>
+              <p id="up-sub">
+                Use a clear photo of the affected leaf, stem or fruit for the
+                best diagnosis.
+              </p>
+              <button type="button" class="btn" id="up-btn">
+                ↑ <span id="btn-text">Upload Photo</span>
+              </button>
+              <small id="up-drag">or drag and drop an image here</small>
+            </div>
+            <div id="pvbox" hidden style="width: 100%">
+              <div class="pv">
+                <img id="prev" alt="Crop preview" />
+                <i class="corner tl"></i><i class="corner tr"></i
+                ><i class="corner bl"></i><i class="corner br"></i>
+                <div class="scanline" id="line"></div>
+              </div>
+              <div class="status" id="status"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- RESULT -->
+        <section class="wrap blk-sec" id="result" hidden>
+          <div class="sec-h"><h2 id="t-result">Diagnosis Result</h2></div>
+          <div id="res"></div>
+        </section>
+
+        <!-- HISTORY -->
+        <section class="wrap blk-sec" id="history">
+          <div class="sec-h"><h2 id="t-hist">Recent Diagnoses</h2></div>
+          <div class="grid" id="hist"></div>
+        </section>
+
+        <!-- FEATURES -->
+        <section class="wrap blk-sec" id="features">
+          <div class="feats">
+            <div class="feat">
+              <div class="fi">⚡</div>
+              <h4 id="f1t">Instant Diagnosis</h4>
+              <p id="f1d">Get results in seconds with advanced AI.</p>
+            </div>
+            <div class="feat">
+              <div class="fi">🛡️</div>
+              <h4 id="f2t">Expert Remedies</h4>
+              <p id="f2d">Receive organic and chemical solutions.</p>
+            </div>
+            <div class="feat">
+              <div class="fi">🌾</div>
+              <h4 id="f3t">Local Farming</h4>
+              <p id="f3d">Tailored for South Asian crops and farms.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <b>Kisan Advisor</b> ·
+        <span id="t-foot"
+          >AI advice is a guide. Please consult a local agricultural expert
+          before using chemicals.</span
+        >
+      </footer>
+    </div>
+
+    <button type="button" class="chat-fab" id="chat-fab" aria-label="Open chat" hidden>💬</button>
+    <section class="chat" id="chat" role="dialog" aria-label="Chat" hidden>
+      <div class="chat-h">
+        <div class="chat-av">🌾</div>
+        <div class="chat-t"><b id="c-title"></b><small id="c-sub"></small></div>
+        <button type="button" class="ic" id="c-spk">🔇</button>
+        <button type="button" class="ic" id="c-clr">🗑</button>
+        <button type="button" class="ic" id="c-x">✕</button>
+      </div>
+      <div class="chat-msgs" id="c-msgs" aria-live="polite"></div>
+      <div class="chat-hint" id="c-hint"></div>
+      <div class="chat-f">
+        <button type="button" class="mic" id="c-mic" aria-pressed="false">🎤</button>
+        <input id="c-in" type="text" dir="auto" autocomplete="off" maxlength="1000" />
+        <button type="button" class="send" id="c-send">➤</button>
+      </div>
+    </section>
+
+    <input id="file" class="vh" type="file" accept="image/*" />
+
+    <script>
+      "use strict";
+      const T = {
+        en: {
+          login: "Log in",
+          signup: "Sign Up",
+          logout: "Logout",
+          aLoginT: "Welcome back",
+          aLoginS: "Log in to diagnose your crops and see your history.",
+          aSignT: "Create your account",
+          aSignS: "Sign up for free to start diagnosing your crops.",
+          lName: "Full name",
+          lEmail: "Email",
+          lPass: "Password",
+          lPass2: "Confirm password",
+          subLogin: "Log in",
+          subSignup: "Create account",
+          swLoginQ: "New to Kisan Advisor?",
+          swLoginA: "Create an account",
+          swSignQ: "Already have an account?",
+          swSignA: "Log in",
+          eFill: "Please fill in all fields.",
+          eEmail: "Please enter a valid email address.",
+          ePassLen: "Password must be at least 6 characters.",
+          eMatch: "Passwords do not match.",
+          eExists: "An account with this email already exists. Please log in.",
+          eBad: "Incorrect email or password.",
+          needLogin: "Please log in or sign up to diagnose your crop.",
+          sideT: "Protect your crop, grow your harvest",
+          sb1: "Instant AI crop diagnosis",
+          sb2: "Saved history for every photo",
+          sb3: "Available in English and Urdu",
+          brand: "Kisan <span>Advisor</span>",
+          tag: "Smart Farming & Crop Protection",
+          nDiag: "Diagnose",
+          nHist: "History",
+          nFeat: "Features",
+          langBtn: "اردو",
+          pill: "Smart Farming & Crop Protection",
+          heroTitle: "What's wrong with your <span>crop</span>?",
+          heroSub:
+            "Upload a photo of your crop or leaf and our AI will diagnose diseases, pests and nutrient deficiencies instantly.",
+          tk1: "Results in seconds",
+          tk2: "Organic and chemical remedies",
+          tk3: "Made for South Asian crops and farms",
+          upTitle: "Upload a crop photo",
+          upSub:
+            "Use a clear photo of the affected leaf, stem or fruit for the best diagnosis.",
+          upBtn: "Upload Photo",
+          drag: "or drag and drop an image here",
+          another: "Upload another photo",
+          busy: "Analysing your crop…",
+          result: "Diagnosis Result",
+          hist: "Recent Diagnoses",
+          none: "No diagnoses yet. Upload a crop photo to begin.",
+          f1t: "Instant Diagnosis",
+          f1d: "Get results in seconds with advanced AI.",
+          f2t: "Expert Remedies",
+          f2d: "Receive organic and chemical solutions.",
+          f3t: "Local Farming",
+          f3d: "Tailored for South Asian crops and farms.",
+          foot: "AI advice is a guide. Please consult a local agricultural expert before using chemicals.",
+          crop: "Crop",
+          conf: "confidence",
+          sym: "Symptoms",
+          cause: "Primary Cause",
+          org: "Organic Treatment",
+          chem: "Chemical Treatment",
+          prev: "Prevention Tips",
+          urg: "Immediate Action Required",
+          risk: "Risk prediction",
+          low: "Low",
+          high: "High",
+          regen: "Re-analyse",
+          share: "Share",
+          note: "Early detection and prompt action are crucial. Consult your local agricultural extension officer before using any chemicals.",
+          sev: {
+            none: "Healthy",
+            low: "Low Severity",
+            medium: "Medium Severity",
+            high: "High Severity",
+          },
+          notplant:
+            "Could not detect a clear crop/plant image. Please upload a well-lit close-up.",
+          err: "Something went wrong. Please check your internet connection and try again.",
+        },
+        ur: {
+          login: "لاگ اِن",
+          signup: "سائن اپ",
+          logout: "لاگ آؤٹ",
+          aLoginT: "خوش آمدید",
+          aLoginS: "اپنی فصلوں کی تشخیص اور ہسٹری دیکھنے کے لیے لاگ اِن کریں۔",
+          aSignT: "اپنا اکاؤنٹ بنائیں",
+          aSignS: "فصلوں کی تشخیص شروع کرنے کے لیے مفت سائن اپ کریں۔",
+          lName: "پورا نام",
+          lEmail: "ای میل",
+          lPass: "پاس ورڈ",
+          lPass2: "پاس ورڈ دوبارہ لکھیں",
+          subLogin: "لاگ اِن کریں",
+          subSignup: "اکاؤنٹ بنائیں",
+          swLoginQ: "کسان ایڈوائزر پر نئے ہیں؟",
+          swLoginA: "اکاؤنٹ بنائیں",
+          swSignQ: "پہلے سے اکاؤنٹ ہے؟",
+          swSignA: "لاگ اِن کریں",
+          eFill: "براہ کرم تمام خانے پُر کریں۔",
+          eEmail: "براہ کرم درست ای میل لکھیں۔",
+          ePassLen: "پاس ورڈ کم از کم 6 حروف کا ہونا چاہیے۔",
+          eMatch: "پاس ورڈ آپس میں نہیں ملتے۔",
+          eExists:
+            "اس ای میل سے اکاؤنٹ پہلے سے موجود ہے۔ براہ کرم لاگ اِن کریں۔",
+          eBad: "ای میل یا پاس ورڈ غلط ہے۔",
+          needLogin: "فصل کی تشخیص کے لیے لاگ اِن یا سائن اپ کریں۔",
+          sideT: "اپنی فصل بچائیں، پیداوار بڑھائیں",
+          sb1: "AI سے فوری فصل کی تشخیص",
+          sb2: "ہر تصویر کی ہسٹری محفوظ",
+          sb3: "انگریزی اور اردو میں دستیاب",
+          brand: "کسان <span>ایڈوائزر</span>",
+          tag: "سمارٹ فارمنگ اور فصل کی حفاظت",
+          nDiag: "تشخیص",
+          nHist: "ہسٹری",
+          nFeat: "خصوصیات",
+          langBtn: "English",
+          pill: "سمارٹ فارمنگ اور فصل کی حفاظت",
+          heroTitle: "آپ کی <span>فصل</span> کو کیا مسئلہ ہے؟",
+          heroSub:
+            "فصل یا پتے کی تصویر اپلوڈ کریں اور AI کے ذریعے بیماریوں، کیڑوں اور غذائی کمی کی فوری تشخیص حاصل کریں۔",
+          tk1: "چند سیکنڈ میں نتائج",
+          tk2: "نامیاتی اور کیمیائی علاج",
+          tk3: "جنوبی ایشیائی فصلوں اور کھیتوں کے لیے",
+          upTitle: "فصل کی تصویر اپلوڈ کریں",
+          upSub:
+            "بہترین تشخیص کے لیے متاثرہ پتے، تنے یا پھل کی واضح تصویر لیں۔",
+          upBtn: "تصویر اپلوڈ کریں",
+          drag: "یا تصویر یہاں کھینچ کر چھوڑیں",
+          another: "دوسری تصویر اپلوڈ کریں",
+          busy: "فصل کا تجزیہ جاری ہے…",
+          result: "تشخیص کا نتیجہ",
+          hist: "حالیہ تشخیص",
+          none: "ابھی کوئی تشخیص نہیں۔ فصل کی تصویر اپلوڈ کریں۔",
+          f1t: "فوری تشخیص",
+          f1d: "چند سیکنڈز میں AI کے ذریعے نتائج حاصل کریں۔",
+          f2t: "بہترین علاج",
+          f2d: "نامیاتی اور کیمیائی حل حاصل کریں۔",
+          f3t: "مقامی کاشتکاری",
+          f3d: "کسانوں کے لیے خصوصی طور پر تیار کردہ۔",
+          foot: "AI کا مشورہ صرف رہنمائی ہے۔ کیمیکل استعمال کرنے سے پہلے مقامی زرعی ماہر سے مشورہ کریں۔",
+          crop: "فصل",
+          conf: "یقین",
+          sym: "علامات",
+          cause: "اصل وجہ",
+          org: "نامیاتی علاج",
+          chem: "کیمیائی علاج",
+          prev: "احتیاطی تدابیر",
+          urg: "فوری اقدام ضروری",
+          risk: "خطرے کا اندازہ",
+          low: "کم",
+          high: "زیادہ",
+          regen: "دوبارہ جانچیں",
+          share: "شیئر کریں",
+          note: "جلد تشخیص اور فوری اقدام بہت اہم ہیں۔ کوئی بھی کیمیکل استعمال کرنے سے پہلے مقامی زرعی ماہر سے مشورہ کریں۔",
+          sev: {
+            none: "صحت مند",
+            low: "کم شدت",
+            medium: "درمیانی شدت",
+            high: "زیادہ شدت",
+          },
+          notplant:
+            "پودا یا فصل واضح نظر نہیں آئی۔ برائے مہربانی قریب سے روشنی میں دوبارہ تصویر لیں۔",
+          err: "کچھ مسئلہ ہوا۔ انٹرنیٹ کنکشن چیک کریں۔",
+        },
+      };
+      const CT = {
+        en: {
+          cTitle: "Kisan Assistant", cSub: "Ask by text or voice", cPh: "Type your question…",
+          cWelcome: "Assalam o Alaikum! 👋 I'm your farming assistant. Ask me about crops, diseases, pests, fertilizer or irrigation. Type, or tap the mic to speak.",
+          cChips: ["How to treat leaf rust in wheat?", "Best fertilizer for cotton?", "How much water does rice need?"],
+          cMic: "Speak", cSend: "Send", cSay: "Read aloud", cSpkOn: "Voice replies: on", cSpkOff: "Voice replies: off",
+          cClear: "Clear chat", cClose: "Close", cOpen: "Open chat", cListen: "Listening… speak now",
+          cNoMic: "Voice input isn't supported in this browser. Please use Chrome, Edge or Safari.",
+          cMicDenied: "Microphone access is blocked. Allow it in your browser settings.",
+          cNoSpeech: "I didn't hear anything. Tap the mic and try again.",
+          cMicErr: "Voice input failed. Please try again or type.",
+          cNoTts: "Voice playback isn't supported on this device.",
+          cNoUrVoice: "No Urdu voice is installed on this device, so I can't read this aloud.",
+          cErr: "Couldn't get a reply. Please try again.",
+          eServer: "Something went wrong. Please try again.",
+        },
+        ur: {
+          cTitle: "کسان اسسٹنٹ", cSub: "لکھ کر یا بول کر پوچھیں", cPh: "اپنا سوال لکھیں…",
+          cWelcome: "السلام علیکم! 👋 میں آپ کا زرعی معاون ہوں۔ فصلوں، بیماریوں، کیڑوں، کھاد یا آبپاشی کے بارے میں پوچھیں۔ لکھیں یا مائیک دبا کر بولیں۔",
+          cChips: ["گندم کی کنگی کا علاج کیا ہے؟", "کپاس کے لیے بہترین کھاد کون سی ہے؟", "چاول کو کتنا پانی چاہیے؟"],
+          cMic: "بولیں", cSend: "بھیجیں", cSay: "سنیں", cSpkOn: "آواز میں جواب: آن", cSpkOff: "آواز میں جواب: آف",
+          cClear: "چیٹ صاف کریں", cClose: "بند کریں", cOpen: "چیٹ کھولیں", cListen: "سن رہا ہوں… اب بولیں",
+          cNoMic: "اس براؤزر میں آواز سے ان پٹ دستیاب نہیں۔ Chrome، Edge یا Safari استعمال کریں۔",
+          cMicDenied: "مائیکروفون کی اجازت بند ہے۔ براؤزر کی سیٹنگز میں اجازت دیں۔",
+          cNoSpeech: "کچھ سنائی نہیں دیا۔ مائیک دبا کر دوبارہ بولیں۔",
+          cMicErr: "آواز سے ان پٹ ناکام ہوا۔ دوبارہ کوشش کریں یا لکھ دیں۔",
+          cNoTts: "اس ڈیوائس پر آواز میں پلے بیک دستیاب نہیں۔",
+          cNoUrVoice: "اس ڈیوائس پر اردو آواز انسٹال نہیں، اس لیے جواب سنایا نہیں جا سکتا۔",
+          cErr: "جواب نہیں مل سکا۔ دوبارہ کوشش کریں۔",
+          eServer: "کچھ مسئلہ ہوا۔ دوبارہ کوشش کریں۔",
+        },
+      };
+      Object.assign(T.en, CT.en);
+      Object.assign(T.ur, CT.ur);
+      const RISK = { none: 6, low: 30, medium: 62, high: 92 };
+
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+      const set = (id, v) => { $(id).textContent = v; };
+      const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+      const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+
+      let lang = lsGet("lang") === "ur" ? "ur" : "en",
+        me = null, hist = [], blob = null, thumb = "", token = 0, current = null,
+        state = "idle", errMsg = "", mode = "login", authNotice = "";
+
+      // ---------- API ----------
+      async function api(path, opts = {}) {
+        const r = await fetch(path, { credentials: "same-origin", ...opts });
+        let d = {};
+        try { d = await r.json(); } catch {}
+        if (!r.ok) {
+          const e = new Error(d.message || d.error || "error");
+          e.code = d.error; e.status = r.status; e.detail = d.message || "";
+          throw e;
+        }
+        return d;
+      }
+      const jpost = (p, b) => api(p, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) });
+
+      function sessionExpired() {
+        me = null; hist = [];
+        closeChat(); clearChat(); resetDrop();
+        authNotice = T[lang].needLogin;
+        location.hash = "#login";
+        route();
+      }
+
+      // ---------- UI text ----------
+      function ui() {
+        const t = T[lang];
+        document.body.dir = lang === "ur" ? "rtl" : "ltr";
+        document.documentElement.lang = lang;
+        $("t-brand").innerHTML = t.brand;
+        set("t-tag", t.tag); set("n-diag", t.nDiag); set("n-hist", t.nHist); set("n-feat", t.nFeat);
+        set("lang-btn", t.langBtn); set("pill-text", t.pill);
+        $("hero-title").innerHTML = t.heroTitle;
+        set("hero-sub", t.heroSub); set("tk1", t.tk1); set("tk2", t.tk2); set("tk3", t.tk3);
+        set("up-title", t.upTitle); set("up-sub", t.upSub); set("btn-text", t.upBtn); set("up-drag", t.drag);
+        set("t-result", t.result); set("t-hist", t.hist);
+        set("f1t", t.f1t); set("f1d", t.f1d); set("f2t", t.f2t); set("f2d", t.f2d); set("f3t", t.f3t); set("f3d", t.f3d);
+        set("t-foot", t.foot);
+        renderStatus(); renderHistory(); renderAuth(); updateNavAuth(); renderChatStatic();
+        if (current) renderResult(current, thumb);
+      }
+
+      function updateNavAuth() {
+        const t = T[lang], el = $("nav-auth");
+        document.querySelector(".links").hidden = !me;
+        el.innerHTML = me
+          ? `<span class="uname">👤 ${esc(me.name.split(" ")[0])}</span><button class="nb out" id="b-out">${t.logout}</button>`
+          : "";
+        if (me) $("b-out").onclick = logout;
+        $("chat-fab").hidden = !me;
+        if (!me) closeChat();
+      }
+
+      function renderAuth() {
+        const t = T[lang], s = mode === "signup";
+        set("a-title", s ? t.aSignT : t.aLoginT);
+        set("a-sub", s ? t.aSignS : t.aLoginS);
+        set("l-name", t.lName); set("l-email", t.lEmail); set("l-pass", t.lPass); set("l-pass2", t.lPass2);
+        $("f-name").hidden = !s; $("f-pass2").hidden = !s;
+        set("a-submit", s ? t.subSignup : t.subLogin);
+        set("a-switch-t", s ? t.swSignQ : t.swLoginQ);
+        set("a-switch", s ? t.swSignA : t.swLoginA);
+        $("a-switch").href = s ? "#login" : "#signup";
+        set("side-t", t.sideT); set("sb1", t.sb1); set("sb2", t.sb2); set("sb3", t.sb3);
+        const n = $("a-notice");
+        n.textContent = authNotice; n.hidden = !authNotice;
+        $("in-pass").autocomplete = s ? "new-password" : "current-password";
+        $("a-err").textContent = "";
+      }
+
+      function route() {
+        const h = location.hash;
+        if (!me) {
+          mode = h === "#signup" ? "signup" : "login";
+          $("app-view").hidden = true; $("auth-view").hidden = false;
+          updateNavAuth(); renderAuth(); window.scrollTo(0, 0);
+          return;
+        }
+        if (h === "#login" || h === "#signup") { location.hash = "#diagnose"; return; }
+        $("auth-view").hidden = true; $("app-view").hidden = false;
+        updateNavAuth();
+        const el = h.length > 1 ? document.getElementById(h.slice(1)) : null;
+        if (el) setTimeout(() => el.scrollIntoView(), 0); else window.scrollTo(0, 0);
+      }
+
+      function needAuth() {
+        if (me) return false;
+        authNotice = T[lang].needLogin;
+        location.hash = "#login";
+        route();
+        return true;
+      }
+
+      function resetDrop() {
+        state = "idle"; blob = null; thumb = ""; current = null; token++;
+        $("hint").hidden = false; $("pvbox").hidden = true;
+        $("drop").classList.add("idle");
+        $("result").hidden = true; $("res").innerHTML = "";
+        renderStatus();
+      }
+
+      async function logout() {
+        try { await jpost("/api/logout", {}); } catch {}
+        me = null; hist = [];
+        closeChat(); clearChat(); resetDrop(); updateNavAuth(); renderHistory();
+        location.hash = "#login";
+        route();
+      }
+
+      function renderStatus() {
+        const t = T[lang], s = $("status");
+        if (state === "busy") s.innerHTML = `<span class="spin"></span><span>${t.busy}</span>`;
+        else if (state === "error") s.innerHTML = `<div class="errbox">${t.err}<small>${esc(errMsg)}</small></div><button class="btn out" id="again">${t.another}</button>`;
+        else if (state === "done") s.innerHTML = `<button class="btn out" id="again">${t.another}</button>`;
+        else s.innerHTML = "";
+        const ag = $("again");
+        if (ag) ag.onclick = () => $("file").click();
+      }
+
+      function renderHistory() {
+        const t = T[lang];
+        $("hist").innerHTML = hist.length
+          ? hist.map((h, i) => {
+              const sev = h.r.severity || "none";
+              return `<button class="hcard" data-i="${i}"><img src="${h.thumb || ""}" alt=""/><div><b>${esc(h.r.disease || "—")}</b><small><i class="sevdot" style="--c:var(--${sev})"></i>${esc(h.r.crop || "")} · ${t.sev[sev] || ""}</small></div></button>`;
+            }).join("")
+          : `<div class="empty">${t.none}</div>`;
+        document.querySelectorAll(".hcard").forEach((b) => (b.onclick = () => {
+          const h = hist[+b.dataset.i];
+          if (!h) return;
+          current = h.r; thumb = h.thumb; blob = null;
+          renderResult(h.r, h.thumb);
+          $("result").hidden = false;
+          $("result").scrollIntoView({ behavior: "smooth" });
+        }));
+      }
+
+      function renderResult(r, th) {
+        const t = T[lang], out = $("res");
+        if (!r.is_plant) { out.innerHTML = `<div class="notplant">${t.notplant}</div>`; return; }
+        const sev = r.severity || "none", c = `var(--${sev})`;
+        const ul = (title, icon, a) => a?.length
+          ? `<div class="card"><h4>${icon} ${title}</h4><ul>${a.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>` : "";
+        out.innerHTML = `<div class="result-grid">
+          <aside class="sum" style="--c:${c}">
+            ${th ? `<img src="${th}" alt=""/>` : ""}
+            <h3>${esc(r.disease)}</h3>
+            <div class="meta">${t.crop}: ${esc(r.crop)} · ${esc(r.confidence)}% ${t.conf}</div>
+            <span class="badge">${t.sev[sev] || esc(sev)}</span>
+            <div class="risk"><b>${t.risk}</b><div class="bar"><i style="width:${RISK[sev] || 6}%"></i></div><div class="lh"><span>${t.low}</span><span>${t.high}</span></div></div>
+            <div class="acts">${blob ? `<button class="a-out" id="regen">${t.regen}</button>` : ""}<button class="a-fill" id="share">${t.share}</button></div>
+          </aside>
+          <div class="details">
+            ${r.urgency && sev !== "none" ? `<div class="card urgent"><h4>🚨 ${t.urg}</h4><p>${esc(r.urgency)}</p></div>` : ""}
+            ${r.cause ? `<div class="card"><h4>🌱 ${t.cause}</h4><p>${esc(r.cause)}</p></div>` : ""}
+            ${ul(t.sym, "🔍", r.symptoms)}
+            <div class="two">${ul(t.org, "🍃", r.treatment?.organic)}${ul(t.chem, "🧪", r.treatment?.chemical)}</div>
+            ${ul(t.prev, "🛡️", r.prevention)}
+            <div class="card note"><span>🌱</span><span>${t.note}</span></div>
+          </div></div>`;
+        const rg = $("regen");
+        if (rg) rg.onclick = () => analyse();
+        $("share").onclick = async () => {
+          const txt = `Kisan Advisor\n${r.crop}: ${r.disease} (${t.sev[sev] || sev})\n${r.cause || ""}`;
+          try {
+            if (navigator.share) await navigator.share({ title: "Kisan Advisor", text: txt });
+            else await navigator.clipboard.writeText(txt);
+          } catch {}
+        };
+      }
+
+      // ---------- image ----------
+      async function shrink(f, max = 1280, q = 0.85) {
+        const bmp = await createImageBitmap(f), s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+        c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+        return new Promise((r) => c.toBlob(r, "image/jpeg", q));
+      }
+      const toURL = (b) => new Promise((res) => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(b); });
+
+      async function pick(f) {
+        if (!f || !f.type.startsWith("image/")) return;
+        if (needAuth()) return;
+        try {
+          blob = await shrink(f);
+          thumb = await toURL(await shrink(blob, 360, 0.75));
+        } catch {
+          state = "error"; errMsg = ""; renderStatus(); return;
+        }
+        $("prev").src = URL.createObjectURL(blob);
+        $("hint").hidden = true; $("pvbox").hidden = false;
+        $("drop").classList.remove("idle");
+        analyse();
+      }
+
+      async function analyse() {
+        const my = ++token;
+        state = "busy"; errMsg = ""; current = null;
+        $("result").hidden = true; $("line").hidden = false;
+        renderStatus();
+        try {
+          const fd = new FormData();
+          fd.append("image", blob, "crop.jpg");
+          fd.append("lang", lang);
+          fd.append("thumb", thumb);
+          const d = await api("/api/analyze", { method: "POST", body: fd });
+          if (my !== token) return;
+          const r = d.result;
+          current = r; state = "done";
+          $("line").hidden = true;
+          if (d.item) { hist.unshift(d.item); hist = hist.slice(0, 16); renderHistory(); }
+          renderStatus(); renderResult(r, thumb);
+          $("result").hidden = false;
+          $("result").scrollIntoView({ behavior: "smooth" });
+        } catch (e) {
+          if (my !== token) return;
+          if (e.status === 401) return sessionExpired();
+          state = "error"; errMsg = e.detail || ""; $("line").hidden = true; renderStatus();
+        }
+      }
+
+      // ---------- chatbot (text + voice) ----------
+      const cs = { open: false, msgs: [], busy: false, speak: false, listening: false, speaking: false, err: "" };
+      let rec = null, recText = "", voices = [];
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const TTS = "speechSynthesis" in window;
+      const fmt = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/^\s*[-*•]\s+/gm, "• ").replace(/\n/g, "<br>");
+      const plain = (s) => String(s).replace(/\*\*/g, "").replace(/^\s*[-*•]\s+/gm, "").replace(/[*_#`]/g, "").trim();
+      const setHint = (s) => { $("c-hint").textContent = s || ""; };
+
+      if (TTS) {
+        const lv = () => { try { voices = speechSynthesis.getVoices(); } catch {} };
+        lv(); speechSynthesis.onvoiceschanged = lv;
+      }
+
+      function renderChatStatic() {
+        const t = T[lang];
+        set("c-title", t.cTitle); set("c-sub", t.cSub);
+        $("c-in").placeholder = t.cPh;
+        $("chat-fab").setAttribute("aria-label", t.cOpen);
+        $("c-mic").title = t.cMic; $("c-send").title = t.cSend;
+        $("c-clr").title = t.cClear; $("c-x").title = t.cClose;
+        paintSpk();
+        renderMsgs();
+      }
+      function paintSpk() {
+        const t = T[lang];
+        $("c-spk").textContent = cs.speak ? "🔊" : "🔇";
+        $("c-spk").title = cs.speak ? t.cSpkOn : t.cSpkOff;
+        $("c-spk").classList.toggle("on", cs.speak);
+      }
+      function paintMic() {
+        $("c-mic").classList.toggle("on", cs.listening);
+        $("c-mic").setAttribute("aria-pressed", cs.listening ? "true" : "false");
+      }
+
+      function renderMsgs() {
+        const t = T[lang], box = $("c-msgs");
+        let h = `<div class="m bot"><div class="bub">${fmt(t.cWelcome)}</div></div>`;
+        if (!cs.msgs.length) h += `<div class="chips">${t.cChips.map((c, i) => `<button type="button" class="chip" data-i="${i}">${esc(c)}</button>`).join("")}</div>`;
+        cs.msgs.forEach((m, i) => {
+          h += m.role === "user"
+            ? `<div class="m user"><div class="bub" dir="auto">${fmt(m.text)}</div></div>`
+            : `<div class="m bot"><div class="bub" dir="auto">${fmt(m.text)}</div><button type="button" class="say" data-i="${i}" title="${t.cSay}" aria-label="${t.cSay}">🔊</button></div>`;
+        });
+        if (cs.busy) h += `<div class="m bot"><div class="bub typing"><i></i><i></i><i></i></div></div>`;
+        if (cs.err) h += `<div class="m bot"><div class="bub cerr">${esc(cs.err)}</div></div>`;
+        box.innerHTML = h;
+        box.scrollTop = box.scrollHeight;
+        box.querySelectorAll(".chip").forEach((b) => (b.onclick = () => send(t.cChips[+b.dataset.i])));
+        box.querySelectorAll(".say").forEach((b) => (b.onclick = () => speak(cs.msgs[+b.dataset.i].text)));
+      }
+
+      function openChat() {
+        if (!me) return;
+        cs.open = true;
+        $("chat").hidden = false; $("chat-fab").classList.add("open");
+        renderMsgs();
+        setTimeout(() => $("c-in").focus(), 60);
+      }
+      function closeChat() {
+        cs.open = false;
+        $("chat").hidden = true; $("chat-fab").classList.remove("open");
+        recText = ""; stopMic(); stopSpeak(); setHint("");
+      }
+      function clearChat() {
+        cs.msgs = []; cs.err = ""; cs.busy = false;
+        stopSpeak(); renderMsgs();
+      }
+
+      function stopSpeak() {
+        cs.speaking = false;
+        if (TTS) try { speechSynthesis.cancel(); } catch {}
+      }
+      function speak(text) {
+        if (!TTS) return setHint(T[lang].cNoTts);
+        if (cs.speaking) return stopSpeak(); // 2nd tap = stop
+        const clean = plain(text);
+        const ur = /[\u0600-\u06FF]/.test(clean), code = ur ? "ur" : "en";
+        const v = voices.find((x) => x.lang.toLowerCase().replace("_", "-").startsWith(code));
+        if (ur && !v) return setHint(T[lang].cNoUrVoice);
+        setHint("");
+        // chhote tukron me, taake Chrome beech me na ruk jaye
+        const chunks = (clean.match(/[^.!?۔\n]+[.!?۔]?/g) || [clean]).map((s) => s.trim()).filter(Boolean);
+        cs.speaking = true;
+        chunks.forEach((c, i) => {
+          const u = new SpeechSynthesisUtterance(c);
+          u.lang = v ? v.lang : ur ? "ur-PK" : "en-US";
+          if (v) u.voice = v;
+          u.rate = 0.95;
+          if (i === chunks.length - 1) u.onend = () => { cs.speaking = false; };
+          u.onerror = () => { cs.speaking = false; };
+          speechSynthesis.speak(u);
+        });
+      }
+
+      function stopMic() { try { rec && rec.stop(); } catch {} }
+      function startMic() {
+        if (!SR) return setHint(T[lang].cNoMic);
+        if (cs.listening) return stopMic();
+        stopSpeak();
+        rec = new SR();
+        rec.lang = lang === "ur" ? "ur-PK" : "en-US";
+        rec.interimResults = true; rec.continuous = false; recText = "";
+        rec.onstart = () => { cs.listening = true; paintMic(); setHint(T[lang].cListen); };
+        rec.onresult = (e) => {
+          let s = "";
+          for (let i = 0; i < e.results.length; i++) s += e.results[i][0].transcript;
+          recText = s; $("c-in").value = s;
+        };
+        rec.onerror = (e) => {
+          const t = T[lang];
+          setHint(e.error === "not-allowed" || e.error === "service-not-allowed" ? t.cMicDenied : e.error === "no-speech" ? t.cNoSpeech : e.error === "aborted" ? "" : t.cMicErr);
+        };
+        rec.onend = () => {
+          cs.listening = false; paintMic();
+          const s = recText.trim(); recText = "";
+          if (s) { setHint(""); send(s, true); }
+        };
+        try { rec.start(); } catch { setHint(T[lang].cMicErr); }
+      }
+
+      function chatContext() {
+        const r = current;
+        if (!r || !r.is_plant) return "";
+        return `${r.crop}: ${r.disease}, severity ${r.severity}. Cause: ${r.cause}`.slice(0, 700);
+      }
+
+      async function send(text, byVoice = false) {
+        text = String(text || "").trim();
+        if (!text || cs.busy) return;
+        recText = ""; stopMic(); stopSpeak(); setHint("");
+        cs.err = ""; cs.msgs.push({ role: "user", text: text.slice(0, 1000) });
+        $("c-in").value = "";
+        cs.busy = true; renderMsgs();
+        try {
+          const d = await jpost("/api/chat", { messages: cs.msgs.slice(-14), lang, context: chatContext() });
+          cs.msgs.push({ role: "assistant", text: d.reply });
+          cs.busy = false; renderMsgs();
+          if (byVoice || cs.speak) speak(d.reply);
+        } catch (e) {
+          cs.busy = false;
+          if (e.status === 401) return sessionExpired();
+          cs.msgs.pop(); // user ka msg wapas input me
+          $("c-in").value = text;
+          cs.err = e.detail || T[lang].cErr;
+          renderMsgs();
+        }
+      }
+
+      // ---------- events ----------
+      $("up-btn").onclick = (e) => { e.stopPropagation(); if (needAuth()) return; $("file").click(); };
+      $("drop").onclick = () => { if ($("drop").classList.contains("idle")) { if (needAuth()) return; $("file").click(); } };
+      $("file").onchange = (e) => { pick(e.target.files[0]); e.target.value = ""; };
+      $("drop").ondragover = (e) => { e.preventDefault(); $("drop").classList.add("over"); };
+      $("drop").ondragleave = () => $("drop").classList.remove("over");
+      $("drop").ondrop = (e) => { e.preventDefault(); $("drop").classList.remove("over"); pick(e.dataTransfer.files[0]); };
+      $("lang-btn").onclick = () => { lang = lang === "en" ? "ur" : "en"; lsSet("lang", lang); stopMic(); stopSpeak(); ui(); };
+      $("pw-toggle").onclick = () => { const i = $("in-pass"); i.type = i.type === "password" ? "text" : "password"; };
+
+      $("chat-fab").onclick = openChat;
+      $("c-x").onclick = closeChat;
+      $("c-clr").onclick = clearChat;
+      $("c-spk").onclick = () => { cs.speak = !cs.speak; if (!cs.speak) stopSpeak(); paintSpk(); };
+      $("c-mic").onclick = startMic;
+      $("c-send").onclick = () => send($("c-in").value);
+      $("c-in").onkeydown = (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); send($("c-in").value); } };
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && cs.open) closeChat(); });
+
+      $("auth-form").onsubmit = async (e) => {
+        e.preventDefault();
+        const t = T[lang], err = (m) => { $("a-err").textContent = m; };
+        const email = $("in-email").value.trim().toLowerCase(), pass = $("in-pass").value, name = $("in-name").value.trim();
+        if (mode === "signup") {
+          if (!name || !email || !pass) return err(t.eFill);
+          if (!/^\S+@\S+\.\S+$/.test(email)) return err(t.eEmail);
+          if (pass.length < 6) return err(t.ePassLen);
+          if (pass !== $("in-pass2").value) return err(t.eMatch);
+        } else if (!email || !pass) return err(t.eFill);
+        const btn = $("a-submit");
+        btn.disabled = true;
+        try {
+          const d = await jpost(mode === "signup" ? "/api/signup" : "/api/login", { name, email, password: pass });
+          me = d.user; authNotice = "";
+          $("auth-form").reset();
+          resetDrop(); clearChat();
+          try { hist = (await api("/api/history")).items; } catch { hist = []; }
+          renderHistory(); updateNavAuth();
+          location.hash = "#diagnose";
+          route();
+        } catch (x) {
+          err({ exists: t.eExists, bad: t.eBad, fill: t.eFill, email: t.eEmail, passlen: t.ePassLen }[x.code] || t.eServer);
+        } finally { btn.disabled = false; }
+      };
+
+      window.addEventListener("hashchange", route);
+
+      (async function boot() {
+        try {
+          me = (await api("/api/me")).user;
+          if (me) hist = (await api("/api/history")).items;
+        } catch { me = null; }
+        ui(); route();
+      })();
+
+    </script>
+  </body>
+</html>
